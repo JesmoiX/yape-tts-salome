@@ -13,9 +13,20 @@ def handler(event, context):
             "headers": {
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Headers": "Content-Type",
-                "Access-Control-Allow-Methods": "POST, OPTIONS"
+                "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
             },
             "body": ""
+        }
+
+    # Respuesta rapida para verificar estado por GET
+    if http_method == "GET":
+        return {
+            "statusCode": 200,
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Content-Type": "application/json"
+            },
+            "body": json.dumps({"status": "ok", "service": "TTS Salome Netlify", "ready": True})
         }
 
     if http_method != "POST":
@@ -57,10 +68,13 @@ def handler(event, context):
                     stream.extend(chunk["data"])
             return bytes(stream)
 
+        # Crear nuevo event loop para la ejecucion asincrona de edge-tts
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        audio_bytes = loop.run_until_complete(generate_audio())
-        loop.close()
+        try:
+            audio_bytes = loop.run_until_complete(generate_audio())
+        finally:
+            loop.close()
 
         b64_audio = base64.b64encode(audio_bytes).decode("utf-8")
 
