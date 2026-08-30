@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servidor TTS Salomé - Cloud Netlify</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #0b0f19; color: #f8fafc; padding: 30px 15px; display: flex; justify-content: center; }
+        .card { max-width: 600px; width: 100%; background: #151d30; border-radius: 16px; border: 1px solid #2a3756; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); }
+        h1 { color: #f43f5e; font-size: 22px; margin-bottom: 8px; }
+        p { color: #94a3b8; font-size: 14px; margin-bottom: 20px; }
+        .status-badge { display: inline-flex; align-items: center; gap: 6px; background: #064e3b; color: #34d399; font-size: 12px; font-weight: bold; padding: 4px 10px; border-radius: 20px; margin-bottom: 15px; }
+        .status-dot { width: 8px; height: 8px; background: #34d399; border-radius: 50%; }
+        textarea { width: 100%; padding: 12px; border-radius: 10px; background: #0a0e1a; border: 1px solid #334155; color: #f8fafc; font-size: 15px; margin-bottom: 15px; outline: none; }
+        button { width: 100%; background: linear-gradient(135deg, #e11d48, #ec4899); color: white; border: none; padding: 13px; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; }
+        button:hover { opacity: 0.9; }
+        .audio-box { margin-top: 20px; background: #0a0e1a; padding: 15px; border-radius: 10px; text-align: center; }
+        audio { width: 100%; }
+        .code-box { background: #0a0e1a; border: 1px solid #334155; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 13px; color: #38bdf8; margin-top: 20px; word-break: break-all; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="status-badge"><div class="status-dot"></div> Servidor Netlify Online</div>
+        <h1>🎙️ API de Voz Salomé (YapeTV)</h1>
+        <p>Endpoint en la nube activo y listo para conectarse con tu app de Android TV / Celular.</p>
+
+        <textarea id="txt" rows="3">Pago recibido de Jesús Gallegos, con el monto de diez soles.</textarea>
+        <button id="btn" onclick="testTts()">🔊 Probar Voz de Salomé</button>
+
+        <div class="audio-box" id="aBox" style="display: none;">
+            <audio id="player" controls autoplay></audio>
+        </div>
+
+        <div class="code-box" id="apiUrl">
+            Endpoint API: <span id="urlSpan">/tts</span>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('urlSpan').innerText = window.location.origin + '/tts';
+
+        async function testTts() {
+            const btn = document.getElementById('btn');
+            const text = document.getElementById('txt').value;
+            btn.innerText = 'Generando audio...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/tts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, voice: 'es-CO-SalomeNeural' })
+                });
+
+                if (!res.ok) throw new Error("Error en servidor");
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const player = document.getElementById('player');
+                player.src = url;
+                document.getElementById('aBox').style.display = 'block';
+                player.play();
+            } catch (err) {
+                alert("Error: " + err.message);
+            } finally {
+                btn.innerText = '🔊 Probar Voz de Salomé';
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

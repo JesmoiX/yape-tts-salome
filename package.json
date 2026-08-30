@@ -1,0 +1,9 @@
+{
+  "name": "yape-salome-tts",
+  "version": "1.0.0",
+  "description": "API TTS Salomé para Netlify",
+  "main": "netlify/functions/tts.js",
+  "dependencies": {
+    "msedge-tts": "^1.4.3"
+  }
+}
